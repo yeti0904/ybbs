@@ -1,0 +1,12 @@
+{
+	"authors": [
+		"yeti"
+	],
+	"copyright": "Copyright © 2022, yeti",
+	"dependencies": {
+		"passwd": "~>0.3.1"
+	},
+	"description": "A minimal D application.",
+	"license": "GPL-3.0-or-later",
+	"name": "telnet"
+}
