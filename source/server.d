@@ -99,6 +99,10 @@ class Server {
 			"watch",
 			"watches a username, so it gets IP banned if it ever connects"
 		]);
+		cmds.AddCommand("setrank", &Commands_SetRank, UserRank.Operator, [
+			"setrank [name] [rank]",
+			"sets name's rank to rank"
+		]);
 	}
 
 	~this() {
@@ -240,10 +244,49 @@ class Server {
 		writefln("Failed to kick %s", name);
 	}
 
+	void KickIP(string ip) {
+		foreach (i, ref client ; clients) {
+			if (client.socket.remoteAddress.toAddrString() == ip) {
+				client.socket.close();
+				clients = clients.remove(i);
+			}
+		}
+	}
+
 	void SendGlobalMessage(string message) {
 		messages ~= message;
 		if (messages.length > 20) {
 			messages = messages.remove(0);
 		}
+	}
+
+	bool UserOnline(string name) {
+		foreach (ref client ; clients) {
+			if (client.username == name) {
+				return true;
+			}
+		}
+		
+		return false;
+	}
+
+	bool IPOnline(string ip) {
+		foreach (ref client ; clients) {
+			if (client.socket.remoteAddress.toAddrString() == ip) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	Client GetClient(string name) {
+		foreach (ref client ; clients) {
+			if (client.username == name) {
+				return client;
+			}
+		}
+
+		assert(0);
 	}
 }

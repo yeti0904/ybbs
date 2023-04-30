@@ -3,6 +3,7 @@ import std.path;
 import std.format;
 import std.string;
 import std.algorithm;
+import data;
 import server;
 import client;
 import commandsManager;
@@ -105,6 +106,10 @@ void Commands_Ban(string[] args, Client client) {
 
 	server.data.banList ~= args[1];
 	server.data.Save();
+
+	if (server.IPOnline(args[0])) {
+		server.KickIP(args[0]);
+	}
 }
 
 void Commands_Watch(string[] args, Client client) {
@@ -117,4 +122,59 @@ void Commands_Watch(string[] args, Client client) {
 
 	server.data.watchList ~= args[0];
 	server.data.Save();
+
+	if (server.UserOnline(args[0])) {
+		server.KickClient(args[0]);
+	}
+}
+
+void Commands_SetRank(string[] args, Client client) {
+	if (args.length < 2) {
+		client.SendMessage("2 arguments required\n");
+		return;
+	}
+
+	auto server = Server.Instance();
+
+	UserRank[string] ranks = [
+		"guest":     UserRank.Guest,
+		"member":    UserRank.Member,
+		"vip":       UserRank.Vip,
+		"regular":   UserRank.Regular,
+		"moderator": UserRank.Moderator,
+		"operator":  UserRank.Operator
+	];
+
+	UserColour[string] rankColours = [
+		"guest":     UserColour.Blue,
+		"member":    UserColour.Blue,
+		"vip":       UserColour.Green,
+		"regular":   UserColour.Magenta,
+		"moderator": UserColour.Yellow,
+		"operator":  UserColour.Cyan
+	];
+
+	if (!server.data.UserExists(args[0])) {
+		client.SendMessage("Unknown user\n");
+		return;
+	}
+
+	try {
+		auto temp = ranks[args[1]];
+	}
+	catch (Throwable) {
+		client.SendMessage("Unknown rank\n");
+		return;
+	}
+	
+	User user   = server.data.GetUser(args[0]);
+	user.rank   = ranks[args[1]];
+	user.colour = rankColours[args[1]];
+
+	server.data.WriteUser(args[0], user);
+	server.data.Save();
+
+	if (server.UserOnline(args[0])) {
+		server.GetClient(args[0]).data = user;
+	}
 }
