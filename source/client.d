@@ -28,6 +28,7 @@ class Client {
 	string              username;
 	AuthenticationStage authStage;
 	User                data;
+	string[]            previous;
 
 	this() {
 		authenticated = false;
@@ -93,6 +94,10 @@ class Client {
 			}
 			catch (CommandQuitException) {
 				return true;
+			}
+
+			if (parts[0] != "up") {
+				previous = parts;
 			}
 			
 			SendMessage("> ");

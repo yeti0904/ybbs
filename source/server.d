@@ -103,6 +103,10 @@ class Server {
 			"setrank [name] [rank]",
 			"sets name's rank to rank"
 		]);
+		/*cmds.AddCommand("up", &Commands_Up, UserRank.Guest, [
+			"up",
+			"repeats the previous command"
+		]);*/
 	}
 
 	~this() {

@@ -104,7 +104,7 @@ void Commands_Ban(string[] args, Client client) {
 		return;
 	}
 
-	server.data.banList ~= args[1];
+	server.data.banList ~= args[0];
 	server.data.Save();
 
 	if (server.IPOnline(args[0])) {
@@ -177,4 +177,14 @@ void Commands_SetRank(string[] args, Client client) {
 	if (server.UserOnline(args[0])) {
 		server.GetClient(args[0]).data = user;
 	}
+}
+
+void Commands_Up(string[] args, Client client) {
+	auto server = Server.Instance();
+
+	if (client.previous.length == 0) {
+		client.SendMessage("No command to repeat\n");
+	}
+
+	server.cmds.Run(client.previous, client);
 }
