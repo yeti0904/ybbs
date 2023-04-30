@@ -76,6 +76,18 @@ class Client {
 				return true;
 			}
 
+			auto cmd = server.cmds.commands[parts[0]];
+
+			if (data.rank < cmd.minRank) {
+				SendMessage(
+					format(
+						"You can't run this command (you are %s, requires %s)\n> ",
+						data.rank, cmd.minRank
+					)
+				);
+				return true;
+			}
+
 			try {
 				server.cmds.Run(parts, this);
 			}
@@ -97,6 +109,8 @@ class Client {
 					if (server.data.UserExists(username)) {
 						auto user = server.data.GetUser(username);
 
+						data = user;
+
 						if (!input.canCryptTo(user.password)) {
 							authStage = AuthenticationStage.Username;
 
@@ -108,7 +122,7 @@ class Client {
 						User user;
 
 						user.password = cast(string) input.CleanString().crypt(Bcrypt.genSalt());
-						user.colour   = UserColour.White;
+						user.colour   = UserColour.Blue;
 						user.rank     = UserRank.Guest;
 						user.xp       = 0;
 
@@ -122,6 +136,16 @@ class Client {
 				
 					SendMessage(showText ~ "\nWelcome, " ~ username ~ "!\n");
 					authenticated = true;
+
+					if (server.data.watchList.canFind(username)) {
+						SendMessage("You are banned from this BBS\n");
+
+						server.data.banList ~= socket.remoteAddress.toAddrString();
+						server.data.Save();
+
+						socket.close();
+						return false;
+					}
 
 					SendMessage(format("You have %d XP\n", data.xp));
 					SendMessage("> ");

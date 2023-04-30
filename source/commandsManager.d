@@ -5,6 +5,7 @@ import client;
 struct Command {
 	void function(string[], Client) func;
 	string[]                        help;
+	UserRank                        minRank;
 }
 
 class CommandQuitException : Exception {
@@ -19,8 +20,11 @@ class CommandManager {
 	this() {}
 	~this() {}
 
-	void AddCommand(string name, void function(string[], Client) func, string[] help) {
-		commands[name] = Command(func, help);
+	void AddCommand(
+		string name, void function(string[], Client) func, UserRank minRank,
+		string[] help
+	) {
+		commands[name] = Command(func, help, minRank);
 	}
 
 	void Run(string[] args, Client client) {

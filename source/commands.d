@@ -18,7 +18,7 @@ void Commands_Help(string[] args, Client client) {
 	}
 	else {
 		if (!cmds.CommandExists(args[0])) {
-			client.SendMessage(format("No such command: %s", args[0]));
+			client.SendMessage(format("No such command: %s\n", args[0]));
 			return;
 		}
 
@@ -43,7 +43,7 @@ void Commands_Messages(string[] args, Client client) {
 
 void Commands_Send(string[] args, Client client) {
 	if (args.length == 0) {
-		client.SendMessage("No message");
+		client.SendMessage("No message\n");
 		return;
 	}
 
@@ -54,7 +54,12 @@ void Commands_Send(string[] args, Client client) {
 	}
 	message = strip(message);
 
-	Server.Instance().SendGlobalMessage(client.username ~ ": " ~ message);
+	Server.Instance().SendGlobalMessage(
+		format(
+			"\x1b[%dm%s\x1b[0m: %s",
+			client.data.colour, client.username, message
+		)
+	);
 }
 
 void Commands_Users(string[] args, Client client) {
@@ -88,4 +93,28 @@ void Commands_Motd(string[] args, Client client) {
 
 void Commands_Clear(string[] args, Client client) {
 	client.SendMessage("\x1b[2J\x1b[H");
+}
+
+void Commands_Ban(string[] args, Client client) {
+	auto server = Server.Instance();
+
+	if (args.length == 0) {
+		client.SendMessage("IP required\n");
+		return;
+	}
+
+	server.data.banList ~= args[1];
+	server.data.Save();
+}
+
+void Commands_Watch(string[] args, Client client) {
+	auto server = Server.Instance();
+
+	if (args.length == 0) {
+		client.SendMessage("Username required\n");
+		return;
+	}
+
+	server.data.watchList ~= args[0];
+	server.data.Save();
 }

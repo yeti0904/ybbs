@@ -1,6 +1,8 @@
 import std.file;
 import std.path;
 import std.json;
+import std.array;
+import std.stdio;
 
 enum UserRank {
 	Guest,
@@ -34,34 +36,51 @@ struct User {
 
 class DataManager {
 	JSONValue userData;
+	string[]  watchList;
+	string[]  banList;
 
 	this() {
-		if (!exists(dirName(thisExePath()) ~ "/data")) {
-			mkdir(dirName(thisExePath()) ~ "/data");
+		string folder = dirName(thisExePath());
+	
+		if (!exists(folder ~ "/data")) {
+			mkdir(folder ~ "/data");
 		}
 
 		string[] dataFiles = [
-			dirName(thisExePath()) ~ "/data/users.json"
+			folder ~ "/data/users.json",
+			folder ~ "/data/banlist.json",
+			folder ~ "/data/watchlist.json"
 		];
 
 		foreach (ref file ; dataFiles) {
 			if (!exists(file)) {
-				write(file, "{}");
+				std.file.write(file, "{}");
 			}
 		}
 
-		userData = readText(dirName(thisExePath()) ~ "/data/users.json").parseJSON();
+		userData  = readText(folder ~ "/data/users.json").parseJSON();
+		watchList = readText(folder ~ "/data/watchlist.json").split('\n');
+		banList   = readText(folder ~ "/data/banlist.json").split('\n');
 	}
 
 	User GetUser(string name) {
 		assert(UserExists(name));
+
+		UserRank[] ranks = [
+			UserRank.Guest,
+			UserRank.Member,
+			UserRank.Vip,
+			UserRank.Regular,
+			UserRank.Moderator,
+			UserRank.Operator,
+		];
 	
 		User ret;
 		auto data = userData[name].object;
 
 		ret.password = data["password"].str;
 		ret.colour   = cast(int) data["colour"].integer;
-		ret.rank     = cast(UserRank) data["rank"].integer;
+		ret.rank     = ranks[data["rank"].integer];
 		ret.xp       = cast(int) data["xp"].integer;
 
 		return ret;
@@ -86,6 +105,8 @@ class DataManager {
 	}
 
 	void Save() {
-		write(dirName(thisExePath()) ~ "/data/users.json", userData.toString());
+		std.file.write(dirName(thisExePath()) ~ "/data/users.json", userData.toString());
+		std.file.write(dirName(thisExePath()) ~ "/data/watchlist.json", watchList.join('\n'));
+		std.file.write(dirName(thisExePath()) ~ "/data/banlist.json", banList.join('\n'));
 	}
 }

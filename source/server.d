@@ -13,8 +13,8 @@ import commands;
 import commandsManager;
 
 struct ServerConfig {
-	string  ip;
-	ushort  port;
+	string ip;
+	ushort port;
 }
 
 class Server {
@@ -58,38 +58,46 @@ class Server {
 		data = new DataManager();
 
 		cmds = new CommandManager();
-		cmds.AddCommand("help", &Commands_Help, [
+		cmds.AddCommand("help", &Commands_Help, UserRank.Guest, [
 			"help {command}",
 			"if command is given, show how to use the command",
 			"if not, show a list of commands"
 		]);
-		cmds.AddCommand("exit", &Commands_Exit, [
+		cmds.AddCommand("exit", &Commands_Exit, UserRank.Guest, [
 			"exit",
 			"closes your session"
 		]);
-		cmds.AddCommand("messages", &Commands_Messages, [
+		cmds.AddCommand("messages", &Commands_Messages, UserRank.Guest, [
 			"messages",
 			"gives you the last 20 messages"
 		]);
-		cmds.AddCommand("send", &Commands_Send, [
+		cmds.AddCommand("send", &Commands_Send, UserRank.Guest, [
 			"send [message]",
 			"sends a message with your username to global chat"
 		]);
-		cmds.AddCommand("users", &Commands_Users, [
+		cmds.AddCommand("users", &Commands_Users, UserRank.Guest, [
 			"users",
 			"gives you a list of online users"
 		]);
-		cmds.AddCommand("uptime", &Commands_Uptime, [
+		cmds.AddCommand("uptime", &Commands_Uptime, UserRank.Guest, [
 			"uptime",
 			"shows server uptime"
 		]);
-		cmds.AddCommand("motd", &Commands_Motd, [
+		cmds.AddCommand("motd", &Commands_Motd, UserRank.Guest, [
 			"motd",
 			"shows server motd"
 		]);
-		cmds.AddCommand("clear", &Commands_Clear, [
+		cmds.AddCommand("clear", &Commands_Clear, UserRank.Guest, [
 			"clear",
 			"clears the screen"
+		]);
+		cmds.AddCommand("ban", &Commands_Ban, UserRank.Moderator, [
+			"ban",
+			"bans an IP"
+		]);
+		cmds.AddCommand("watch", &Commands_Watch, UserRank.Moderator, [
+			"watch",
+			"watches a username, so it gets IP banned if it ever connects"
 		]);
 	}
 
@@ -155,6 +163,12 @@ class Server {
 			Client newClient = new Client();
 			newClient.socket = newClientSocket;
 
+			if (data.banList.canFind(newClientSocket.remoteAddress.toAddrString())) {
+				newClient.SendMessage("You are banned from this BBS\n");
+				newClient.socket.close();
+				goto loop;
+			}
+
 			clients ~= newClient;
 			clientSet.add(newClientSocket);
 
@@ -165,6 +179,8 @@ class Server {
 				"\nUsername: "
 			);
 		}
+
+		loop:
 
 		foreach (ref client ; clients) {
 			if (!clientSet.isSet(client.socket)) {
