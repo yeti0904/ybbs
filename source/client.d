@@ -115,6 +115,12 @@ class Client {
 			switch (authStage) {
 				case AuthenticationStage.Username: {
 					username = strip(input);
+
+					if (username.length > 32) {
+						SendMessage("Username is too long (32 characters max)\nUsername: ");
+						break;
+					}
+					
 					SendMessage("Password: " ~ hideText);
 					authStage = AuthenticationStage.Password;
 					break;
@@ -146,7 +152,13 @@ class Client {
 						server.data.Save();
 
 						SendMessage(showText ~ "\nCreated account\n");
+						writefln("Created account %s", username);
 					}
+
+					writefln(
+						"%s logged in as %s", socket.remoteAddress.toAddrString(),
+						username
+					);
 				
 					SendMessage(showText ~ "\nWelcome, " ~ username ~ "!\n");
 					authenticated = true;
