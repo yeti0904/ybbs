@@ -252,6 +252,8 @@ class Server {
 	void KickIP(string ip) {
 		foreach (i, ref client ; clients) {
 			if (client.socket.remoteAddress.toAddrString() == ip) {
+				writefln("Kicked IP %s", ip);
+			
 				client.socket.close();
 				clients = clients.remove(i);
 				KickIP(ip);
@@ -263,6 +265,8 @@ class Server {
 	void KickMe(Client pclient) {
 		foreach (i, ref client ; clients) {
 			if (client is pclient) {
+				writefln("Kicked IP %s", client.socket.remoteAddress.toAddrString());
+			
 				client.socket.close();
 				clients = clients.remove(i);
 				return;
