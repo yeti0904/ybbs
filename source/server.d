@@ -243,6 +243,25 @@ class Server {
 		}
 	}
 
+	void CheckClients() {
+		foreach (i, ref client ; clients) {
+			auto sent = client.socket.send([cast(ubyte) 0]);
+
+			if (sent == Socket.ERROR) {
+				if (client.authenticated) {
+					writefln("Kicked %s", client.username);
+				}
+				else {
+					writefln("Kicked IP %s", client.socket.remoteAddress.toAddrString());
+				}
+			
+				clients = clients.remove(i);
+				CheckClients();
+				return;
+			}
+		}
+	}
+
 	void KickClient(string name) {
 		foreach (i, ref client ; clients) {
 			if (client.authenticated && (client.username == name)) {
