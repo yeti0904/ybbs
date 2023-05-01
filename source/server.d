@@ -1,3 +1,4 @@
+import std.utf;
 import std.file;
 import std.path;
 import std.json;

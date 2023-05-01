@@ -36,7 +36,7 @@ class Client {
 	}
 
 	void SendMessage(string pmsg) {
-		auto msg = pmsg;
+		auto msg = pmsg.replace("\n", "\r\n");
 		
 		while (msg.length > 0) {
 			auto len = socket.send(cast(void[]) msg);
@@ -52,6 +52,13 @@ class Client {
 	bool HandleInput() {
 		string input  = strip(cast(string) inBuffer).CleanString();
 		auto   server = Server.Instance();
+
+		try {
+			input.validate();
+		}
+		catch (UTFException) {
+			server.KickMe(this);
+		}
 
 		if (input.length == 0) {
 			inBuffer = [];
