@@ -263,7 +263,7 @@ class Server {
 		foreach (i, ref client ; clients) {
 			if (client is pclient) {
 				client.socket.close();
-				clients = clientsremove(i);
+				clients = clients.remove(i);
 				return;
 			}
 		}
