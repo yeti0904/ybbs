@@ -35,6 +35,7 @@ class Client {
 	AuthenticationStage authStage;
 	User                data;
 	string[]            previous;
+	string              ip;
 
 	this() {
 		authenticated = false;

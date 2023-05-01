@@ -171,6 +171,7 @@ class Server {
 
 			Client newClient = new Client();
 			newClient.socket = newClientSocket;
+			newClient.ip     = newClientSocket.remoteAddress.toAddrString();
 
 			if (data.banList.canFind(newClientSocket.remoteAddress.toAddrString())) {
 				newClient.SendMessage("You are banned from this BBS\n");
@@ -252,7 +253,7 @@ class Server {
 					writefln("Kicked %s", client.username);
 				}
 				else {
-					writefln("Kicked IP %s", client.socket.remoteAddress.toAddrString());
+					writefln("Kicked IP %s", client.ip);
 				}
 			
 				clients = clients.remove(i);
