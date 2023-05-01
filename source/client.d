@@ -41,7 +41,7 @@ class Client {
 		while (msg.length > 0) {
 			auto len = socket.send(cast(void[]) msg);
 
-			assert(len != Socket.ERROR);
+			Server.Instance().KickMe(this);
 
 			msg = msg[len .. $];
 		}

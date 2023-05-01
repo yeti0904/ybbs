@@ -253,6 +253,18 @@ class Server {
 			if (client.socket.remoteAddress.toAddrString() == ip) {
 				client.socket.close();
 				clients = clients.remove(i);
+				KickIP(ip);
+				return;
+			}
+		}
+	}
+
+	void KickMe(Client pclient) {
+		foreach (i, ref client ; clients) {
+			if (client is pclient) {
+				client.socket.close();
+				clients = clientsremove(i);
+				return;
 			}
 		}
 	}
