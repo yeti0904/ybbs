@@ -227,12 +227,18 @@ class Server {
 			client.inBuffer = client.inBuffer.remove(0);
 */
 			if (client.inBuffer[$ - 1] == 10) {
-				if (!client.HandleInput()) {
-					client.socket.close();
-					clients = clients.remove(i);
+				try {
+					if (!client.HandleInput()) {
+						client.socket.close();
+						clients = clients.remove(i);
+						return;
+					}
+					client.inBuffer = [];
+				}
+				catch (ClientQuitException) {
+					UpdateClients();
 					return;
 				}
-				client.inBuffer = [];
 			}
 		}
 	}

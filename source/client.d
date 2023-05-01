@@ -21,6 +21,12 @@ enum AuthenticationStage {
 	Password
 }
 
+class ClientQuitException : Exception {
+	this(string msg = "", string file = __FILE__, size_t line = __LINE__) {
+		super(msg, file, line);
+	}
+}
+
 class Client {
 	Socket              socket;
 	ubyte[]             inBuffer;
@@ -43,6 +49,7 @@ class Client {
 
 			if (len == Socket.ERROR) {
 				Server.Instance().KickMe(this);
+				throw new ClientQuitException();
 			}
 
 			msg = msg[len .. $];
