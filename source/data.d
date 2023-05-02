@@ -3,6 +3,7 @@ import std.path;
 import std.json;
 import std.array;
 import std.stdio;
+import util;
 
 enum UserRank {
 	Guest,
@@ -102,6 +103,26 @@ class DataManager {
 			return true;
 		}
 		return false;
+	}
+
+	bool UserExistsCI(string name) {
+		foreach (string key, value ; userData) {
+			if (key.LowerString() == name.LowerString()) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	string GetNameCase(string name) {
+		foreach (string key, value ; userData) {
+			if (key.LowerString() == name.LowerString()) {
+				return key;
+			}
+		}
+
+		assert(0);
 	}
 
 	void Save() {

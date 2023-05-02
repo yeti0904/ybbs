@@ -6,6 +6,7 @@ import std.ascii;
 import std.stdio;
 import std.string;
 import std.socket;
+import std.net.curl;
 import std.algorithm;
 import std.datetime.stopwatch;
 import data;
@@ -16,6 +17,7 @@ import commandsManager;
 struct ServerConfig {
 	string ip;
 	ushort port;
+	bool   antivpn;
 }
 
 class Server {
@@ -40,14 +42,17 @@ class Server {
 		else {
 			configFile = parseJSON("{}");
 
-			configFile["ip"]   = "0.0.0.0";
-			configFile["port"] = 25565;
+			configFile["ip"]            = "0.0.0.0";
+			configFile["port"]          = 25565;
+			configFile["antivpn"]       = false;
+			configFile["antivpn-token"] = "";
 
 			std.file.write(configPath, configFile.toPrettyString());
 		}
 
-		config.ip   = configFile["ip"].str;
-		config.port = cast(ushort) configFile["port"].integer;
+		config.ip      = configFile["ip"].str;
+		config.port    = cast(ushort) configFile["port"].integer;
+		config.antivpn = configFile["antivpn"].boolean;
 	
 		uptime = StopWatch(AutoStart.no);
 	
@@ -177,6 +182,21 @@ class Server {
 				newClient.SendMessage("You are banned from this BBS\n");
 				newClient.socket.close();
 				goto loop;
+			}
+
+			if (config.antivpn && (newClient.ip != "127.0.0.1")) {
+				JSONValue ipData;
+				string url = format(
+					"http://ip-api.com/json/%s?fields=16965632",
+					newClient.ip
+				);
+				ipData = get(url).parseJSON();
+
+				if (ipData["proxy"].boolean || ipData["hosting"].boolean) {
+					newClient.SendMessage("VPN uses may not connect to this BBS\n");
+					newClient.socket.close();
+					goto loop;
+				}
 			}
 
 			clients ~= newClient;

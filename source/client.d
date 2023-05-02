@@ -134,7 +134,8 @@ class Client {
 					break;
 				}
 				case AuthenticationStage.Password: {
-					if (server.data.UserExists(username)) {
+					if (server.data.UserExistsCI(username)) {
+						username = server.data.GetNameCase(username);
 						auto user = server.data.GetUser(username);
 
 						data = user;
@@ -147,6 +148,22 @@ class Client {
 						}
 					}
 					else {
+						string allowedChars = "0123456789_abcdefghijklmnopqrstuvwxyz";
+						bool   doBreak      = false;
+						
+						foreach (ref ch ; username.LowerString()) {
+							if (!allowedChars.canFind(ch)) {
+								SendMessage("Username not allowed\nUsername: ");
+								authStage = AuthenticationStage.Username;
+								doBreak = true;
+								break;
+							}
+						}
+
+						if (doBreak) {
+							break;
+						}
+					
 						User user;
 
 						user.password = cast(string) input.CleanString().crypt(Bcrypt.genSalt());
