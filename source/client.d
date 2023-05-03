@@ -134,10 +134,12 @@ class Client {
 				}
 				case AuthenticationStage.Password: {
 					if (server.data.UserExistsCI(username)) {
-						username = server.data.GetNameCase(username);
-						auto user = server.data.GetUser(username);
+						username     = server.data.GetNameCase(username);
+						auto   user  = server.data.GetUser(username);
+						string oldIP = data.ip;
 
-						data = user;
+						data    = user;
+						data.ip = oldIP;
 
 						if (!input.canCryptTo(user.password)) {
 							authStage = AuthenticationStage.Username;
