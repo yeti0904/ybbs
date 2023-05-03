@@ -35,7 +35,6 @@ class Client {
 	AuthenticationStage authStage;
 	User                data;
 	string[]            previous;
-	string              ip;
 
 	this() {
 		authenticated = false;
@@ -148,12 +147,17 @@ class Client {
 						}
 					}
 					else {
+						if (server.data.AccountsWithIP(data.ip) > 2) {
+							SendMessage(showText ~ "You may only have 2 accounts\n");
+							return false;
+						}
+					
 						string allowedChars = "0123456789_abcdefghijklmnopqrstuvwxyz";
 						bool   doBreak      = false;
 						
 						foreach (ref ch ; username.LowerString()) {
 							if (!allowedChars.canFind(ch)) {
-								SendMessage("Username not allowed\nUsername: ");
+								SendMessage(showText ~ "Username not allowed\nUsername: ");
 								authStage = AuthenticationStage.Username;
 								doBreak = true;
 								break;
@@ -170,18 +174,19 @@ class Client {
 						user.colour   = UserColour.Blue;
 						user.rank     = UserRank.Guest;
 						user.xp       = 0;
+						user.ip       = data.ip; // set by Server
 
 						data = user;
-
-						server.data.WriteUser(username.CleanString(), user);
-						server.data.Save();
 
 						SendMessage(showText ~ "\nCreated account\n");
 						writefln("Created account %s", username);
 					}
 
+					server.data.WriteUser(username.CleanString(), data);
+					server.data.Save();
+
 					writefln(
-						"%s logged in as %s", socket.remoteAddress.toAddrString(),
+						"%s logged in as %s", data.ip,
 						username
 					);
 				
@@ -191,7 +196,7 @@ class Client {
 					if (server.data.watchList.canFind(username)) {
 						SendMessage("You are banned from this BBS\n");
 
-						server.data.banList ~= socket.remoteAddress.toAddrString();
+						server.data.banList ~= data.ip;
 						server.data.Save();
 
 						socket.close();

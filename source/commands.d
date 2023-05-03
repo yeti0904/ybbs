@@ -188,3 +188,30 @@ void Commands_Up(string[] args, Client client) {
 
 	server.cmds.Run(client.previous, client);
 }
+
+void Commands_GetInfo(string[] args, Client client) {
+	auto server = Server.Instance();
+
+	if (args.length != 1) {
+		client.SendMessage("1 argument required");
+	}
+
+	if (!server.data.UserExists(args[0])) {
+		client.SendMessage("No such user exists");
+	}
+
+	auto user = server.data.GetUser(args[1]);
+
+	client.SendMessage(format("Colour: %s\n", cast(UserColour) user.colour));
+	client.SendMessage(format("Rank: %s\n", user.rank));
+	client.SendMessage(format("XP: %d\n", user.xp));
+	client.SendMessage(format("IP: %d\n", user.ip));
+}
+
+void Commands_AllUsers(string[] args, Client client) {
+	auto server = Server.Instance();
+
+	foreach (string key, value ; server.data.userData) {{
+		client.SendMessage(format("%s\n", key));
+	}}
+}

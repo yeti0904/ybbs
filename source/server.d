@@ -113,6 +113,14 @@ class Server {
 			"up",
 			"repeats the previous command"
 		]);*/
+		cmds.AddCommand("getinfo", &Commands_GetInfo, UserRank.Moderator, [
+			"getinfo [name]",
+			"shows all stored info (except password) of [name]"
+		]);
+		cmds.AddCommand("allusers", &Commands_AllUsers, UserRank.Operator, [
+			"allusers",
+			"shows every username in the user data"
+		]);
 	}
 
 	~this() {
@@ -174,21 +182,21 @@ class Server {
 		if (success) {
 			newClientSocket.blocking = false;
 
-			Client newClient = new Client();
-			newClient.socket = newClientSocket;
-			newClient.ip     = newClientSocket.remoteAddress.toAddrString();
+			Client newClient  = new Client();
+			newClient.socket  = newClientSocket;
+			newClient.data.ip = newClientSocket.remoteAddress.toAddrString();
 
-			if (data.banList.canFind(newClientSocket.remoteAddress.toAddrString())) {
+			if (data.banList.canFind(newClient.data.ip)) {
 				newClient.SendMessage("You are banned from this BBS\n");
 				newClient.socket.close();
 				goto loop;
 			}
 
-			if (config.antivpn && (newClient.ip != "127.0.0.1")) {
+			if (config.antivpn && (newClient.data.ip != "127.0.0.1")) {
 				JSONValue ipData;
 				string url = format(
 					"http://ip-api.com/json/%s?fields=16965632",
-					newClient.ip
+					newClient.data.ip
 				);
 				ipData = get(url).parseJSON();
 
@@ -202,7 +210,7 @@ class Server {
 			clients ~= newClient;
 			clientSet.add(newClientSocket);
 
-			writefln("%s connected", newClientSocket.remoteAddress.toAddrString());
+			writefln("%s connected", newClient.data.ip);
 
 			newClient.SendMessage(
 				readText(dirName(thisExePath()) ~ "/motd.txt") ~
@@ -273,7 +281,7 @@ class Server {
 					writefln("Kicked %s", client.username);
 				}
 				else {
-					writefln("Kicked IP %s", client.ip);
+					writefln("Kicked IP %s", client.data.ip);
 				}
 			
 				clients = clients.remove(i);
@@ -297,7 +305,7 @@ class Server {
 
 	void KickIP(string ip) {
 		foreach (i, ref client ; clients) {
-			if (client.socket.remoteAddress.toAddrString() == ip) {
+			if (client.data.ip == ip) {
 				writefln("Kicked IP %s", ip);
 			
 				client.socket.close();
@@ -311,7 +319,7 @@ class Server {
 	void KickMe(Client pclient) {
 		foreach (i, ref client ; clients) {
 			if (client is pclient) {
-				writefln("Kicked IP %s", client.socket.remoteAddress.toAddrString());
+				writefln("Kicked IP %s", client.data.ip);
 			
 				client.socket.close();
 				clients = clients.remove(i);
@@ -339,7 +347,7 @@ class Server {
 
 	bool IPOnline(string ip) {
 		foreach (ref client ; clients) {
-			if (client.socket.remoteAddress.toAddrString() == ip) {
+			if (client.data.ip == ip) {
 				return true;
 			}
 		}

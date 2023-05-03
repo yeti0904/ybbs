@@ -31,6 +31,7 @@ struct User {
 	int      colour;
 	UserRank rank;
 	int      xp;
+	string   ip;
 }
 
 // i hope using JSON as a database isn't a bad idea
@@ -62,6 +63,12 @@ class DataManager {
 		userData  = readText(folder ~ "/data/users.json").parseJSON();
 		watchList = readText(folder ~ "/data/watchlist.json").split('\n');
 		banList   = readText(folder ~ "/data/banlist.json").split('\n');
+
+		foreach (string key, value ; userData) { // update old data
+			if ("ip" !in value) {
+				value["ip"] = "127.0.0.1";
+			}
+		}
 	}
 
 	User GetUser(string name) {
@@ -83,6 +90,7 @@ class DataManager {
 		ret.colour   = cast(int) data["colour"].integer;
 		ret.rank     = ranks[data["rank"].integer];
 		ret.xp       = cast(int) data["xp"].integer;
+		ret.ip       = data["ip"].str;
 
 		return ret;
 	}
@@ -94,6 +102,7 @@ class DataManager {
 		value["colour"]   = user.colour;
 		value["rank"]     = cast(int) user.rank;
 		value["xp"]       = user.xp;
+		value["ip"]       = user.ip;
 
 		userData[name] = value;
 	}
@@ -123,6 +132,18 @@ class DataManager {
 		}
 
 		assert(0);
+	}
+
+	size_t AccountsWithIP(string ip) {
+		size_t ret;
+	
+		foreach (string key, value ; userData) {
+			if (value["ip"].str == ip) {
+				++ ret;
+			}
+		}
+
+		return ret;
 	}
 
 	void Save() {
