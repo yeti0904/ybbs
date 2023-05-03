@@ -194,10 +194,12 @@ void Commands_GetInfo(string[] args, Client client) {
 
 	if (args.length != 1) {
 		client.SendMessage("1 argument required");
+		return;
 	}
 
 	if (!server.data.UserExists(args[0])) {
 		client.SendMessage("No such user exists");
+		return;
 	}
 
 	auto user = server.data.GetUser(args[0]);
