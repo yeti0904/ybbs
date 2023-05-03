@@ -205,7 +205,7 @@ void Commands_GetInfo(string[] args, Client client) {
 	client.SendMessage(format("Colour: %s\n", cast(UserColour) user.colour));
 	client.SendMessage(format("Rank: %s\n", user.rank));
 	client.SendMessage(format("XP: %d\n", user.xp));
-	client.SendMessage(format("IP: %d\n", user.ip));
+	client.SendMessage(format("IP: %s\n", user.ip));
 }
 
 void Commands_AllUsers(string[] args, Client client) {
