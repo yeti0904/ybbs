@@ -200,7 +200,7 @@ void Commands_GetInfo(string[] args, Client client) {
 		client.SendMessage("No such user exists");
 	}
 
-	auto user = server.data.GetUser(args[1]);
+	auto user = server.data.GetUser(args[0]);
 
 	client.SendMessage(format("Colour: %s\n", cast(UserColour) user.colour));
 	client.SendMessage(format("Rank: %s\n", user.rank));
