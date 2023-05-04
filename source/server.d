@@ -121,6 +121,14 @@ class Server {
 			"allusers",
 			"shows every username in the user data"
 		]);
+		cmds.AddCommand("unban", &Commands_Unban, UserRank.Moderator, [
+			"unban [ip]",
+			"unbans the given IP"
+		]);
+		cmds.AddCommand("unwatch", &Commands_Unwatch, UserRank.Moderator, [
+			"unwatch [name]",
+			"unwatches the given name"
+		]);
 	}
 
 	~this() {

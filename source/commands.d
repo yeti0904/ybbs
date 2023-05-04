@@ -217,3 +217,41 @@ void Commands_AllUsers(string[] args, Client client) {
 		client.SendMessage(format("%s\n", key));
 	}}
 }
+
+void Commands_Unban(string[] args, Client client) {
+	auto server = Server.Instance();
+
+	if (args.length != 1) {
+		client.SendMessage("1 argument required");
+		return;
+	}
+
+	if (!server.data.banList.canFind(args[1])) {
+		client.SendMessage("This IP is not banned");
+		return;
+	}
+
+	server.data.banList = server.data.banList.remove(
+		server.data.banList.countUntil(args[0])
+	);
+	server.data.Save();
+}
+
+void Commands_Unwatch(string[] args, Client client) {
+	auto server = Server.Instance();
+
+	if (args.length != 1) {
+		client.SendMessage("1 argument required");
+		return;
+	}
+
+	if (!server.data.banList.canFind(args[1])) {
+		client.SendMessage("This name is not watched");
+		return;
+	}
+
+	server.data.watchList = server.data.watchList.remove(
+		server.data.watchList.countUntil(args[0])
+	);
+	server.data.Save();
+}
